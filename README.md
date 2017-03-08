@@ -1,2 +1,4 @@
 # Console-programs
-My projects for CV
+My some console programs:
+- Sorting algorithms
+- File handling (zip, utf)
