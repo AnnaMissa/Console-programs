@@ -43,7 +43,7 @@ class Database:
         print "User delete"
 
     def is_user_existing(self, cur, user):
-        cur.execute("SELECT name FROM user WHERE name=?", (user,))
+        cur.execute("SELECT name FROM user WHERE name=?", (user, ))
         if len(cur.fetchall()) != 0:
             return True
         else:
@@ -90,6 +90,15 @@ class Files:
         file.close()
         f.close()
 
+    def get_operation(self):
+        pass
+
+    def update_history(self):
+        pass
+
+    def verify_user(self):
+        pass
+
     def check(self, database, con, cur):  # split: get_operation, update_history and verify_user
         if self.title.find("ZIP") != -1:
             user = self.title[:self.title.find("ZIP")]
@@ -97,13 +106,13 @@ class Files:
         elif self.title.find("UTF") != -1:
             user = self.title[:self.title.find("UTF")]
             proc = "UTF"
-        else: #error in mode
+        else:  # error in mode
             database.add_history("admin", "error method", self.title, "not executed, delete file", con, cur)
             return False
         if database.is_user_existing(cur, user):
             database.add_history(user, proc, self.title, "done", con, cur) # must be after procces
             return proc
-        else: #error user
+        else:  # error user
             database.add_history("admin", "error user", self.title, "not executed, delete file", con, cur)
             return False
 
