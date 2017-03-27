@@ -42,7 +42,7 @@ class Database:
         con.commit()
         print "User delete"
 
-    def search(self, cur, user):
+    def is_user_existing(self, cur, user):
         cur.execute("SELECT name FROM user WHERE name=?", (user,))
         if len(cur.fetchall()) != 0:
             return True
@@ -90,7 +90,7 @@ class Files:
         file.close()
         f.close()
 
-    def check(self, database, con, cur):
+    def check(self, database, con, cur):  # split: get_operation, update_history and verify_user
         if self.title.find("ZIP") != -1:
             user = self.title[:self.title.find("ZIP")]
             proc = "ZIP"
@@ -100,8 +100,8 @@ class Files:
         else: #error in mode
             database.add_history("admin", "error method", self.title, "not executed, delete file", con, cur)
             return False
-        if database.search(cur, user):
-            database.add_history(user, proc, self.title, "done", con, cur) #must be after procces !!!
+        if database.is_user_existing(cur, user):
+            database.add_history(user, proc, self.title, "done", con, cur) # must be after procces
             return proc
         else: #error user
             database.add_history("admin", "error user", self.title, "not executed, delete file", con, cur)
@@ -131,7 +131,7 @@ class Work:
         if op == 1:
             for el in os.listdir(path + "IN"):
                 obj = Files(el)
-                proc = obj.check(database, con, cur)
+                proc = obj.check(database, con, cur)  # could inject the dependency on object creation stage
                 if proc == "ZIP":
                     obj.zip_file()
                 elif proc == "UTF":
@@ -152,17 +152,17 @@ class Work:
             database.clear_history(cur, con)
 
 
-path = os.path.relpath("D:\GitHub\Console-programs\File_handling") + "\\"
-a = Work()
+path = os.path.relpath("C:\GitHub\Console-programs\File_handling") + "\\"  # change (absolute path)
+obj = Work()
 database = Database("change_history.db")
 con, cur = database.connect()
 while True:
-    op = a.dialog()
+    op = obj.dialog()
     if op == 6:
         print "Good bye!"
         break
     elif 0 < op <6:
-        a.action(op, database, con, cur)
+        obj.action(op, database, con, cur)
     y = raw_input("\nYou want to continue?"
                   "\nIf so, enter Y:"
                   "\n>>> ")
